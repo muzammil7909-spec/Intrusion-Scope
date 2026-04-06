@@ -46,14 +46,26 @@ function Button({
   className,
   variant = "default",
   size = "default",
+  asChild = false,
+  render,
+  children,
   ...props
 }) {
-  return (
-    <ButtonPrimitive
-      data-slot="button"
-      className={cn(buttonVariants({ variant, size, className }))}
-      {...props} />
-  );
+  const isNative = !asChild && !render;
+
+  const primitiveProps = {
+    "data-slot": "button",
+    className: cn(buttonVariants({ variant, size, className })),
+    render: asChild ? children : render,
+    nativeButton: isNative,
+    ...props
+  };
+
+  if (isNative) {
+    primitiveProps.children = children;
+  }
+
+  return <ButtonPrimitive {...primitiveProps} />;
 }
 
 export { Button, buttonVariants }

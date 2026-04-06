@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import Admin from '@/models/Admin';
 
 const MONGODB_URI = process.env.MONGODB_URI;
 
@@ -22,7 +23,9 @@ async function dbConnect() {
       bufferCommands: false,
     };
 
-    cached.promise = mongoose.connect(MONGODB_URI, opts).then((mongoose) => {
+    cached.promise = mongoose.connect(MONGODB_URI, opts).then(async (mongoose) => {
+      // Seed initial admin if provided in env
+      await seedAdmin();
       return mongoose;
     });
   }
@@ -35,6 +38,26 @@ async function dbConnect() {
   }
 
   return cached.conn;
+}
+
+async function seedAdmin() {
+  const adminEmail = process.env.ADMIN_EMAIL;
+  const adminPassword = process.env.ADMIN_PASSWORD;
+
+  if (!adminEmail || !adminPassword) return;
+
+  try {
+    const existingAdmin = await Admin.findOne({ email: adminEmail });
+    if (!existingAdmin) {
+      console.log(`Seeding initial admin: ${adminEmail}`);
+      await Admin.create({
+        email: adminEmail,
+        password: adminPassword, // The model's pre-save hook will hash this
+      });
+    }
+  } catch (error) {
+    console.error("Error seeding admin:", error);
+  }
 }
 
 export default dbConnect;

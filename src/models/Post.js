@@ -7,14 +7,30 @@ const PostSchema = new mongoose.Schema({
     maxlength: [200, 'Title cannot be more than 200 characters'],
   },
   cveId: {
-    type: String,
+    type: String, unique: true
   },
   product: {
     type: String,
   },
-  cwes: {
-    type: String,
+  cwes: [String],
+  classification: String,
+  vendorProject: String,
+  metaTitle: String,
+  metaDescription: String,
+  openGraph: {
+    title: String,
+    description: String,
+    type: { type: String, default: 'article' },
+    imageAlt: String,
   },
+  jsonLd: {
+    articleSchema: mongoose.Schema.Types.Mixed,
+    faqSchema: mongoose.Schema.Types.Mixed,
+  },
+  tableOfContents: [{
+    level: Number,
+    title: String,
+  }],
   dateDisclosed: {
     type: Date,
   },
