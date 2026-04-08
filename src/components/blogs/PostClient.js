@@ -117,7 +117,7 @@ const MarkdownComponents = {
   ),
 };
 
-export default function PostClient({ post }) {
+export default function PostClient({ post, relatedPosts = [] }) {
   const { scrollYProgress } = useScroll();
   const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
   const scale = useTransform(scrollYProgress, [0, 0.2], [1, 0.95]);
@@ -321,6 +321,50 @@ export default function PostClient({ post }) {
           </motion.div>
         </aside>
       </div>
+
+      {/* Related Intelligence Section */}
+      {relatedPosts.length > 0 && (
+        <section className="max-w-7xl mx-auto px-6 mt-32 space-y-12">
+          <div className="flex items-center justify-between">
+            <h2 className="text-3xl font-black font-display tracking-tight text-white flex items-center gap-4">
+              <Activity className="size-8 text-primary" />
+              RELATED INTELLIGENCE
+            </h2>
+            <Link href="/blogs" className="text-[10px] font-black uppercase tracking-[0.3em] text-primary hover:text-white transition-colors flex items-center gap-2 group">
+              View All <ArrowRight className="size-3 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {relatedPosts.map((rPost, idx) => (
+              <motion.div
+                key={rPost._id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.1 }}
+              >
+                <Link
+                  href={`/blogs/${rPost.slug}`}
+                  className="group block p-8 rounded-[2rem] bg-surface-low border border-white/[0.03] hover:bg-surface-mid hover:border-primary/20 transition-all shadow-xl"
+                >
+                  <div className="space-y-4">
+                    <Badge variant="outline" className="text-[8px] px-2 py-0.5 border-white/10 text-muted-foreground uppercase font-black tracking-widest">
+                      {rPost.cveId || "ADVISORY"}
+                    </Badge>
+                    <h3 className="text-xl font-black font-display text-white group-hover:text-primary transition-colors line-clamp-2 leading-tight">
+                      {rPost.blogTitle}
+                    </h3>
+                    <p className="text-xs text-muted-foreground/60 line-clamp-2 leading-relaxed">
+                      {rPost.shortDescription}
+                    </p>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </section>
+      )}
 
       {/* Footer Branding */}
       <footer className="max-w-7xl mx-auto px-6 mt-48 mb-24">

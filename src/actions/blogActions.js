@@ -202,6 +202,48 @@ export async function getPosts(options = {}) {
   }
 }
 
+export async function getRelatedPosts(currentSlug, category, limit = 3) {
+  try {
+    await dbConnect();
+    
+    // Find posts in same category, excluding current post
+    const query = {
+      published: true,
+      slug: { $ne: currentSlug }
+    };
+
+    if (category) {
+      query.classification = category;
+    }
+
+    const posts = await Post.find(query)
+      .sort({ updatedAt: -1 })
+      .limit(limit)
+      .lean();
+
+    // If not enough related posts in same category, fill with latest posts
+    if (posts.length < limit) {
+      const additionalLimit = limit - posts.length;
+      const excludedSlugs = [currentSlug, ...posts.map(p => p.slug)];
+      
+      const latestPosts = await Post.find({
+        published: true,
+        slug: { $nin: excludedSlugs }
+      })
+      .sort({ updatedAt: -1 })
+      .limit(additionalLimit)
+      .lean();
+      
+      posts.push(...latestPosts);
+    }
+
+    return JSON.parse(JSON.stringify(posts));
+  } catch (error) {
+    console.error("Get Related Posts Error:", error);
+    return [];
+  }
+}
+
 export async function togglePublishStatus(id) {
   try {
     await checkAuth();

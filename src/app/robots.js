@@ -5,10 +5,10 @@ export default function robots() {
     rules: [
       {
         userAgent: '*',
-        allow: '/',
+        allow: ['/', '/_next/static/', '/favicon.svg'],
         disallow: ['/dashboard', '/login', '/api/'],
       },
     ],
-    sitemap: `${baseUrl}/sitemap.xml`,
+    sitemap: `${baseUrl.replace(/\/$/, '')}/sitemap.xml`,
   };
 }

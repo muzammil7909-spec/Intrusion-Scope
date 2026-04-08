@@ -39,7 +39,9 @@ export const metadata = {
     telephone: false,
   },
   alternates: {
-    canonical: "/",
+    languages: {
+      "en-US": "/",
+    },
   },
   openGraph: {
     title: "IntrusionScope — Real-time Security Intelligence for Modern SecOps",

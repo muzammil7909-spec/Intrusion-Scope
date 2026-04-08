@@ -2,10 +2,10 @@ import dbConnect from "@/lib/mongodb/db";
 import Post from "@/models/Post";
 import { notFound } from "next/navigation";
 import PostClient from "@/components/blogs/PostClient";
+import { getRelatedPosts } from "@/actions/blogActions";
 
 // ISR: revalidate blog posts every hour
 export const revalidate = 3600;
-
 // Pre-render all published blog posts at build time
 export async function generateStaticParams() {
   await dbConnect();
@@ -63,7 +63,9 @@ export default async function BlogPostPage({ params }) {
   const post = await Post.findOne({ slug }).lean();
   if (!post) notFound();
 
+  const relatedPosts = await getRelatedPosts(slug, post.classification);
   const serializedPost = JSON.parse(JSON.stringify(post));
+  const serializedRelated = JSON.parse(JSON.stringify(relatedPosts));
 
   // Build JSON-LD structured data
   const articleJsonLd = {
@@ -154,7 +156,7 @@ export default async function BlogPostPage({ params }) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
       />
-      <PostClient post={serializedPost} />
+      <PostClient post={serializedPost} relatedPosts={serializedRelated} />
     </>
   );
 }
