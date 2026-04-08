@@ -179,7 +179,7 @@ export async function getPosts(options = {}) {
     
     const totalCount = await Post.countDocuments(query);
     const posts = await Post.find(query)
-      .sort({ updatedAt: -1 })
+      .sort({ createdAt: -1 })
       .skip(skip)
       .limit(Number(limit))
       .lean();
@@ -217,7 +217,7 @@ export async function getRelatedPosts(currentSlug, category, limit = 3) {
     }
 
     const posts = await Post.find(query)
-      .sort({ updatedAt: -1 })
+      .sort({ createdAt: -1 })
       .limit(limit)
       .lean();
 
@@ -230,7 +230,7 @@ export async function getRelatedPosts(currentSlug, category, limit = 3) {
         published: true,
         slug: { $nin: excludedSlugs }
       })
-      .sort({ updatedAt: -1 })
+      .sort({ createdAt: -1 })
       .limit(additionalLimit)
       .lean();
       

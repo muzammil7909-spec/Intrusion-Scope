@@ -6,7 +6,8 @@ export default async function sitemap() {
 
   await dbConnect();
   const posts = await Post.find({ published: true })
-    .select('slug updatedAt')
+    .select('slug updatedAt createdAt')
+    .sort({ createdAt: -1 })
     .lean();
 
   const blogEntries = posts.map((post) => ({

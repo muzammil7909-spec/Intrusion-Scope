@@ -22,7 +22,7 @@ async function check() {
 
     // List recent slugs
     console.log("\nListing 10 most recent posts:");
-    const allPosts = await Post.find({}, { blogTitle: 1, slug: 1, published: 1, updatedAt: 1 }).sort({ updatedAt: -1 }).limit(10);
+    const allPosts = await Post.find({}, { blogTitle: 1, slug: 1, published: 1, createdAt: 1 }).sort({ createdAt: -1 }).limit(10);
     allPosts.forEach(p => {
       console.log(`- [${p.published ? "P" : "D"}] ${p.blogTitle} | slug: ${p.slug} | updated: ${p.updatedAt}`);
     });
