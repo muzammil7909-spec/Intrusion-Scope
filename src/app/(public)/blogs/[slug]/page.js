@@ -63,7 +63,10 @@ export default async function BlogPostPage({ params }) {
   const post = await Post.findOne({ slug }).lean();
   if (!post) notFound();
 
-  const relatedPosts = await getRelatedPosts(slug, post.classification);
+  const [relatedPosts] = await Promise.all([
+    getRelatedPosts(slug, post.classification)
+  ]);
+  
   const serializedPost = JSON.parse(JSON.stringify(post));
   const serializedRelated = JSON.parse(JSON.stringify(relatedPosts));
 

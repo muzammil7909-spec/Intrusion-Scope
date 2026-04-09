@@ -21,23 +21,26 @@ export default async function HomePage({ searchParams }) {
   const category = queryParams.category || "";
   const limit = 6;
 
-  const { posts, pagination } = await getPosts({
-    page,
-    limit,
-    search,
-    category,
-    publishedOnly: true
-  });
+  const [postsData, categories] = await Promise.all([
+    getPosts({
+      page,
+      limit,
+      search,
+      category,
+      publishedOnly: true
+    }),
+    getUniqueCategories()
+  ]);
 
-  const categories = await getUniqueCategories();
+  const { posts, pagination } = postsData;
 
   return (
-    <HomeClient 
-      posts={posts} 
-      categories={categories} 
-      pagination={pagination} 
-      category={category} 
-      search={search} 
+    <HomeClient
+      posts={posts}
+      categories={categories}
+      pagination={pagination}
+      category={category}
+      search={search}
     />
   );
 }

@@ -7,7 +7,7 @@ function escapeRegExp(string) {
 
 import dbConnect from "@/lib/mongodb/db";
 import Post from "@/models/Post";
-import { revalidatePath } from "next/cache";
+import { revalidatePath, unstable_cache, revalidateTag } from "next/cache";
 import { auth } from "@/lib/auth";
 
 // Helper to check authentication
@@ -62,6 +62,7 @@ export async function createPost(formData) {
     };
 
     const post = await Post.create(postData);
+    revalidateTag("posts");
     revalidatePath("/dashboard");
     revalidatePath("/blogs");
     return { success: true, id: post._id.toString() };
@@ -114,6 +115,7 @@ export async function updatePost(id, formData) {
     };
 
     await Post.findByIdAndUpdate(id, postData);
+    revalidateTag("posts");
     revalidatePath("/dashboard");
     revalidatePath(`/blogs/${postData.slug}`);
     return { success: true };
@@ -128,6 +130,7 @@ export async function deletePost(id) {
     await checkAuth();
     await dbConnect();
     await Post.findByIdAndDelete(id);
+    revalidateTag("posts");
     revalidatePath("/dashboard");
     return { success: true };
   } catch (error) {
@@ -136,7 +139,7 @@ export async function deletePost(id) {
   }
 }
 
-export async function getPosts(options = {}) {
+const getPostsInternal = async (options = {}) => {
   const { 
     page = 1, 
     limit = 10, 
@@ -165,11 +168,9 @@ export async function getPosts(options = {}) {
 
     // Specific category filtering (top-level or sub-level)
     if (options.category) {
-      // Create a flexible regex that allows for optional whitespace around slashes
-      // Example: "A/B" becomes "^A\s*/\s*B"
       const flexibleCategory = options.category
         .split("/")
-        .map(part => escapeRegExp(part.trim()))
+        .map(part => part.replace(/[.*+?^${}()|[\]\\]/g, '\\$&').trim())
         .join("\\s*/\\s*");
       
       query.classification = { $regex: `^${flexibleCategory}`, $options: "i" };
@@ -179,6 +180,7 @@ export async function getPosts(options = {}) {
     
     const totalCount = await Post.countDocuments(query);
     const posts = await Post.find(query)
+      .select("blogTitle shortDescription slug cveId product createdAt classification published")
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(Number(limit))
@@ -200,9 +202,18 @@ export async function getPosts(options = {}) {
       pagination: { totalCount: 0, totalPages: 0, currentPage: 1, limit: Number(limit) } 
     };
   }
+};
+
+export async function getPosts(options = {}) {
+  const cacheKey = JSON.stringify(options);
+  return unstable_cache(
+    () => getPostsInternal(options),
+    ["posts", cacheKey],
+    { tags: ["posts"], revalidate: 3600 }
+  )();
 }
 
-export async function getRelatedPosts(currentSlug, category, limit = 3) {
+const getRelatedPostsInternal = async (currentSlug, category, limit = 3) => {
   try {
     await dbConnect();
     
@@ -217,6 +228,7 @@ export async function getRelatedPosts(currentSlug, category, limit = 3) {
     }
 
     const posts = await Post.find(query)
+      .select("blogTitle shortDescription slug cveId product createdAt classification published")
       .sort({ createdAt: -1 })
       .limit(limit)
       .lean();
@@ -230,6 +242,7 @@ export async function getRelatedPosts(currentSlug, category, limit = 3) {
         published: true,
         slug: { $nin: excludedSlugs }
       })
+      .select("blogTitle shortDescription slug cveId product createdAt classification published")
       .sort({ createdAt: -1 })
       .limit(additionalLimit)
       .lean();
@@ -242,6 +255,14 @@ export async function getRelatedPosts(currentSlug, category, limit = 3) {
     console.error("Get Related Posts Error:", error);
     return [];
   }
+};
+
+export async function getRelatedPosts(currentSlug, category, limit = 3) {
+  return unstable_cache(
+    () => getRelatedPostsInternal(currentSlug, category, limit),
+    ["related-posts", currentSlug, category, limit.toString()],
+    { tags: ["posts"], revalidate: 3600 }
+  )();
 }
 
 export async function togglePublishStatus(id) {
@@ -254,6 +275,7 @@ export async function togglePublishStatus(id) {
     post.published = !post.published;
     await post.save();
     
+    revalidateTag("posts");
     revalidatePath("/dashboard");
     revalidatePath("/");
     revalidatePath(`/blogs/${post.slug}`);
@@ -264,18 +286,32 @@ export async function togglePublishStatus(id) {
   }
 }
 
-export async function getPost(id) {
+const getPostInternal = async (idOrSlug) => {
   try {
     await dbConnect();
-    const post = await Post.findById(id).lean();
+    // Try finding by ID first, then by slug
+    let post;
+    if (idOrSlug.match(/^[0-9a-fA-F]{24}$/)) {
+      post = await Post.findById(idOrSlug).lean();
+    } else {
+      post = await Post.findOne({ slug: idOrSlug }).lean();
+    }
     return JSON.parse(JSON.stringify(post));
   } catch (error) {
     console.error("Get Post Error:", error);
     return null;
   }
+};
+
+export async function getPost(idOrSlug) {
+  return unstable_cache(
+    () => getPostInternal(idOrSlug),
+    ["post", idOrSlug],
+    { tags: ["posts"], revalidate: 3600 }
+  )();
 }
 
-export async function getUniqueCategories() {
+const getUniqueCategoriesInternal = async () => {
   try {
     await dbConnect();
     // Get all unique classifications from published posts
@@ -295,9 +331,17 @@ export async function getUniqueCategories() {
     console.error("Get Categories Error:", error);
     return [];
   }
+};
+
+export async function getUniqueCategories() {
+  return unstable_cache(
+    () => getUniqueCategoriesInternal(),
+    ["unique-categories"],
+    { tags: ["posts"], revalidate: 3600 }
+  )();
 }
 
-export async function getAllClassifications() {
+const getAllClassificationsInternal = async () => {
   try {
     await dbConnect();
     // Get all unique classifications from published posts
@@ -329,4 +373,12 @@ export async function getAllClassifications() {
     console.error("Get All Classifications Error:", error);
     return {};
   }
+};
+
+export async function getAllClassifications() {
+  return unstable_cache(
+    () => getAllClassificationsInternal(),
+    ["all-classifications"],
+    { tags: ["posts"], revalidate: 3600 }
+  )();
 }

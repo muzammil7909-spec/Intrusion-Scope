@@ -39,15 +39,18 @@ export default async function BlogsPage({ searchParams }) {
   const category = queryParams.category ? queryParams.category.split("/").map(p => p.trim()).join("/") : "";
   const limit = 12;
 
-  const { posts, pagination } = await getPosts({
-    page,
-    limit,
-    search,
-    category,
-    publishedOnly: true
-  });
+  const [postsData, categoriesRoot] = await Promise.all([
+    getPosts({
+      page,
+      limit,
+      search,
+      category,
+      publishedOnly: true
+    }),
+    getAllClassifications()
+  ]);
 
-  const categoriesRoot = await getAllClassifications();
+  const { posts, pagination } = postsData;
 
   return (
     <BlogsClient 

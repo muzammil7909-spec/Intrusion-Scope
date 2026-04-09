@@ -1,11 +1,21 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
 import { ArrowLeft, Calendar, Shield, HelpCircle, Search, AlertTriangle, Globe, Activity, Zap, ExternalLink } from "lucide-react";
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
+
+// Dynamically import the custom markdown renderer
+const MarkdownRenderer = dynamic(() => import('./MarkdownRenderer'), {
+  ssr: true,
+  loading: () => <div className="space-y-4 animate-pulse py-10">
+    <div className="h-4 bg-white/5 rounded w-3/4"></div>
+    <div className="h-4 bg-white/5 rounded w-1/2"></div>
+    <div className="h-4 bg-white/5 rounded w-5/6"></div>
+  </div>
+});
+
+
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { ArrowRight } from "lucide-react";
@@ -107,6 +117,7 @@ const MarkdownComponents = {
           fill
           className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 50vw"
+          priority
         />
         <div className="absolute inset-0 bg-gradient-to-t from-background/40 to-transparent pointer-events-none" />
       </div>
@@ -210,13 +221,10 @@ export default function PostClient({ post, relatedPosts = [] }) {
           viewport={{ once: true }}
           className="lg:col-span-8 prose prose-invert prose-p:text-muted-foreground max-w-none"
         >
-          <ReactMarkdown
-            remarkPlugins={[remarkGfm]}
-            rehypePlugins={[rehypeRaw]}
+          <MarkdownRenderer
+            content={post.data || "# ERROR: Intelligence Stream Corrupted"}
             components={MarkdownComponents}
-          >
-            {post.data || "# ERROR: Intelligence Stream Corrupted"}
-          </ReactMarkdown>
+          />
 
           {/* FAQ Section */}
           {post.faq && post.faq.length > 0 && (
