@@ -8,6 +8,8 @@ import remarkGfm from 'remark-gfm';
 import rehypeRaw from 'rehype-raw';
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
+import { ArrowRight } from "lucide-react";
+import Image from "next/image";
 
 const MarkdownComponents = {
   // Force h1 in markdown content to h2 since page title is already the h1
@@ -99,9 +101,9 @@ const MarkdownComponents = {
             SECURE_ASSET_VT
           </Badge>
         </div>
-        <Image 
-          src={src} 
-          alt={alt || "IntrusionScope Intelligence Asset"} 
+        <Image
+          src={src}
+          alt={alt || "IntrusionScope Intelligence Asset"}
           fill
           className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 50vw"
@@ -126,12 +128,12 @@ export default function PostClient({ post, relatedPosts = [] }) {
     <div className="min-h-screen bg-background text-foreground font-sans selection:bg-primary/20 pb-32 relative overflow-x-hidden">
       {/* Background Ambience */}
       <div className="absolute top-0 left-1/4 w-[1000px] h-[1000px] bg-primary/5 rounded-full blur-[200px] -z-10 mix-blend-screen opacity-30" />
-      
+
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 border-b border-white/[0.04] bg-background/60 backdrop-blur-2xl">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
           <Link href="/blogs" className="flex items-center gap-3 group">
-            <motion.div 
+            <motion.div
               whileHover={{ x: -4 }}
               className="size-9 rounded-xl bg-surface-low border border-white/[0.05] flex items-center justify-center group-hover:bg-primary/10 group-hover:border-primary/20 transition-all"
             >
@@ -143,7 +145,7 @@ export default function PostClient({ post, relatedPosts = [] }) {
       </nav>
 
       {/* Hero Header */}
-      <motion.header 
+      <motion.header
         style={{ opacity, scale }}
         className="pt-40 pb-20 relative px-6"
       >
@@ -157,8 +159,8 @@ export default function PostClient({ post, relatedPosts = [] }) {
                 {post.cveId || "TECHNICAL ADVISORY"}
               </Badge>
             </motion.div>
-            
-            <motion.div 
+
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.1 }}
@@ -179,7 +181,7 @@ export default function PostClient({ post, relatedPosts = [] }) {
             </motion.div>
           </div>
 
-          <motion.h1 
+          <motion.h1
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
@@ -188,7 +190,7 @@ export default function PostClient({ post, relatedPosts = [] }) {
             {post.blogTitle}
           </motion.h1>
 
-          <motion.p 
+          <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
@@ -202,7 +204,7 @@ export default function PostClient({ post, relatedPosts = [] }) {
       {/* Main Content Layout */}
       <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-20 relative">
         {/* Post Content */}
-        <motion.article 
+        <motion.article
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
@@ -218,7 +220,7 @@ export default function PostClient({ post, relatedPosts = [] }) {
 
           {/* FAQ Section */}
           {post.faq && post.faq.length > 0 && (
-            <motion.section 
+            <motion.section
               initial={{ opacity: 0, y: 40 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -230,7 +232,7 @@ export default function PostClient({ post, relatedPosts = [] }) {
               </h2>
               <div className="grid gap-6">
                 {post.faq.map((item, i) => (
-                  <motion.div 
+                  <motion.div
                     key={i}
                     whileHover={{ x: 8 }}
                     className="p-8 rounded-[2rem] bg-surface-low/50 border border-white/[0.04] backdrop-blur-xl group hover:border-primary/20 transition-all duration-500"
@@ -292,7 +294,7 @@ export default function PostClient({ post, relatedPosts = [] }) {
             </Card>
           </motion.div>
 
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.6 }}
@@ -307,11 +309,11 @@ export default function PostClient({ post, relatedPosts = [] }) {
                 Critical patching mandated by {post.remediationDeadline ? new Date(post.remediationDeadline).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : "IMMEDIATE EFFECT"}.
               </p>
               <div className="h-1.5 w-full bg-red-500/10 rounded-full overflow-hidden mt-4">
-                <motion.div 
+                <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: "85%" }}
                   transition={{ duration: 1.5, ease: "easeOut" }}
-                  className="h-full bg-red-500" 
+                  className="h-full bg-red-500"
                 />
               </div>
             </div>
@@ -334,7 +336,7 @@ export default function PostClient({ post, relatedPosts = [] }) {
               View All <ArrowRight className="size-3 group-hover:translate-x-1 transition-transform" />
             </Link>
           </div>
-          
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {relatedPosts.map((rPost, idx) => (
               <motion.div
@@ -368,7 +370,7 @@ export default function PostClient({ post, relatedPosts = [] }) {
 
       {/* Footer Branding */}
       <footer className="max-w-7xl mx-auto px-6 mt-48 mb-24">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
