@@ -5,7 +5,7 @@ export default function robots() {
     rules: [
       {
         userAgent: '*',
-        allow: ['/', '/_next/static/', '/favicon.svg'],
+        allow: '/',
         disallow: ['/dashboard', '/login', '/api/'],
       },
     ],
