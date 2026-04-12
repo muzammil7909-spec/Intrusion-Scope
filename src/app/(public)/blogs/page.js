@@ -32,6 +32,8 @@ export const metadata = {
   },
 };
 
+export const revalidate = 3600; // ISR: cache for 1 hour
+
 export default async function BlogsPage({ searchParams }) {
   const queryParams = await searchParams;
   const page = Number(queryParams.page) || 1;
