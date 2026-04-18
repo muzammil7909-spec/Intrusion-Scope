@@ -19,7 +19,7 @@ export default async function HomePage({ searchParams }) {
   const page = Number(queryParams.page) || 1;
   const search = queryParams.search || "";
   const category = queryParams.category || "";
-  const limit = 6;
+  const limit = 8;
 
   const [postsData, categories] = await Promise.all([
     getPosts({

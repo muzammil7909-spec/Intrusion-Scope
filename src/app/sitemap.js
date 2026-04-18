@@ -8,19 +8,21 @@ export default async function sitemap() {
   const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://intrusionscope.site').replace(/\/$/, '');
 
   await dbConnect();
+  // Fetch ALL published posts — sitemap.js in Next.js handles large arrays well
   const posts = await Post.find({ published: true })
     .select('slug updatedAt createdAt')
-    .sort({ createdAt: -1 })
+    .sort({ createdAt: -1, _id: -1 })
     .lean();
 
-  // Use the most recent post's date for aggregate pages
+  // Use the most recent activity (create or update) across the whole collection
   const latestPostDate = posts.length > 0
-    ? new Date(posts[0].updatedAt || posts[0].createdAt)
-    : new Date('2026-01-01');
+    ? new Date(Math.max(...posts.map(p => new Date(p.updatedAt || p.createdAt)))).toISOString()
+    : new Date('2026-01-01').toISOString();
+
 
   const blogEntries = posts.map((post) => ({
     url: `${baseUrl}/blogs/${post.slug}`,
-    lastModified: post.updatedAt ? new Date(post.updatedAt) : new Date(post.createdAt),
+    lastModified: (post.updatedAt ? new Date(post.updatedAt) : new Date(post.createdAt)).toISOString(),
     changeFrequency: 'weekly',
     priority: 0.7,
   }));
@@ -30,7 +32,7 @@ export default async function sitemap() {
       url: baseUrl,
       lastModified: latestPostDate,
       changeFrequency: 'daily',
-      priority: 1,
+      priority: 1.0,
     },
     {
       url: `${baseUrl}/blogs`,
@@ -41,3 +43,4 @@ export default async function sitemap() {
     ...blogEntries,
   ];
 }
+

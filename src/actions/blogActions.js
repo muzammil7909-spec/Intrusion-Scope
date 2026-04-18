@@ -181,7 +181,7 @@ const getPostsInternal = async (options = {}) => {
     const totalCount = await Post.countDocuments(query);
     const posts = await Post.find(query)
       .select("blogTitle shortDescription slug cveId product createdAt classification published")
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: -1, _id: -1 })
       .skip(skip)
       .limit(Number(limit))
       .lean();
@@ -197,12 +197,12 @@ const getPostsInternal = async (options = {}) => {
     };
   } catch (error) {
     console.error("Get Posts Error:", error);
-    return { 
-      posts: [], 
-      pagination: { totalCount: 0, totalPages: 0, currentPage: 1, limit: Number(limit) } 
-    };
+    // Re-throw the error so unstable_cache doesn't poison the cache with an empty/failed state.
+    // This allows the Next.js error boundary (error.js) to handle the UI.
+    throw error;
   }
 };
+
 
 export async function getPosts(options = {}) {
   const cacheKey = JSON.stringify(options);
@@ -229,7 +229,7 @@ const getRelatedPostsInternal = async (currentSlug, category, limit = 3) => {
 
     const posts = await Post.find(query)
       .select("blogTitle shortDescription slug cveId product createdAt classification published")
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: -1, _id: -1 })
       .limit(limit)
       .lean();
 
@@ -243,7 +243,7 @@ const getRelatedPostsInternal = async (currentSlug, category, limit = 3) => {
         slug: { $nin: excludedSlugs }
       })
       .select("blogTitle shortDescription slug cveId product createdAt classification published")
-      .sort({ createdAt: -1 })
+      .sort({ createdAt: -1, _id: -1 })
       .limit(additionalLimit)
       .lean();
       

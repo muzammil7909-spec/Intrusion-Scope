@@ -28,6 +28,7 @@ export default function Pagination({ totalPages, currentPage }) {
       ) : (
         <Link
           href={createPageURL(currentPage - 1)}
+          scroll={false}
           className="inline-flex items-center justify-center h-12 w-12 rounded-2xl border border-white/[0.05] bg-surface-low/50 hover:bg-surface-mid hover:border-primary/30 hover:text-primary transition-all font-black shadow-xl"
           aria-label="Previous page"
         >
@@ -52,6 +53,7 @@ export default function Pagination({ totalPages, currentPage }) {
             <Link
               key={page}
               href={createPageURL(page)}
+              scroll={false}
               className="inline-flex items-center justify-center h-12 w-12 rounded-2xl transition-all font-black text-xs shadow-xl border border-white/[0.05] bg-surface-low/50 hover:bg-surface-mid hover:border-primary/30 hover:text-primary"
             >
               {page}
@@ -70,6 +72,7 @@ export default function Pagination({ totalPages, currentPage }) {
       ) : (
         <Link
           href={createPageURL(currentPage + 1)}
+          scroll={false}
           className="inline-flex items-center justify-center h-12 w-12 rounded-2xl border border-white/[0.05] bg-surface-low/50 hover:bg-surface-mid hover:border-primary/30 hover:text-primary transition-all font-black shadow-xl"
           aria-label="Next page"
         >

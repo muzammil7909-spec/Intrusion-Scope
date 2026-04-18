@@ -15,6 +15,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
+  const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://intrusionscope.site').replace(/\/$/, '');
   await dbConnect();
   const post = await Post.findOne({ slug }).lean();
   if (!post) return {};
@@ -27,12 +28,12 @@ export async function generateMetadata({ params }) {
     description,
     keywords: post.keywords?.join(", "),
     alternates: {
-      canonical: `/blogs/${slug}`,
+      canonical: `${baseUrl}/blogs/${slug}`,
     },
     openGraph: {
       title: post.openGraph?.title || title,
       description: post.openGraph?.description || description,
-      url: `/blogs/${slug}`,
+      url: `${baseUrl}/blogs/${slug}`,
       type: "article",
       publishedTime: post.createdAt,
       modifiedTime: post.updatedAt,
@@ -40,7 +41,7 @@ export async function generateMetadata({ params }) {
       tags: post.keywords,
       images: [
         {
-          url: "/Banner.png",
+          url: `${baseUrl}/Banner.png`,
           width: 1500,
           height: 750,
           alt: post.openGraph?.imageAlt || `${title} — IntrusionScope`,
@@ -51,14 +52,14 @@ export async function generateMetadata({ params }) {
       card: "summary_large_image",
       title: post.openGraph?.title || title,
       description: post.openGraph?.description || description,
-      images: ["/Banner.png"],
+      images: [`${baseUrl}/Banner.png`],
     },
   };
 }
 
 export default async function BlogPostPage({ params }) {
   const { slug } = await params;
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://intrusionscope.site').replace(/\/$/, '');
   await dbConnect();
   const post = await Post.findOne({ slug }).lean();
   if (!post) notFound();
@@ -70,14 +71,18 @@ export default async function BlogPostPage({ params }) {
   const serializedPost = JSON.parse(JSON.stringify(post));
   const serializedRelated = JSON.parse(JSON.stringify(relatedPosts));
 
-  // Build JSON-LD structured data
+  // Calculate word count for schema
+  const wordCount = serializedPost.data ? serializedPost.data.split(/\s+/).length : 0;
+
+  // Build JSON-LD structured data (TechArticle)
   const articleJsonLd = {
     "@context": "https://schema.org",
-    "@type": "Article",
+    "@type": "TechArticle",
     headline: serializedPost.blogTitle,
     description: serializedPost.metaDescription || serializedPost.shortDescription,
     datePublished: serializedPost.createdAt,
     dateModified: serializedPost.updatedAt,
+    wordCount: wordCount,
     author: {
       "@type": "Organization",
       name: "IntrusionScope",
@@ -86,6 +91,7 @@ export default async function BlogPostPage({ params }) {
     publisher: {
       "@type": "Organization",
       name: "IntrusionScope",
+      url: baseUrl,
       logo: {
         "@type": "ImageObject",
         url: `${baseUrl}/Banner.png`,
@@ -95,9 +101,18 @@ export default async function BlogPostPage({ params }) {
       "@type": "WebPage",
       "@id": `${baseUrl}/blogs/${slug}`,
     },
-    image: `${baseUrl}/Banner.png`,
+    image: {
+      "@type": "ImageObject",
+      url: `${baseUrl}/Banner.png`,
+      width: 1500,
+      height: 750
+    },
     keywords: serializedPost.keywords?.join(", "),
     articleSection: serializedPost.category || "Cybersecurity Intelligence",
+    brand: {
+      "@type": "Brand",
+      name: "IntrusionScope"
+    }
   };
 
   // Build FAQ JSON-LD if FAQs exist
@@ -142,6 +157,7 @@ export default async function BlogPostPage({ params }) {
       },
     ],
   };
+
 
   return (
     <>

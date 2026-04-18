@@ -32,7 +32,7 @@ export const metadata = {
   },
 };
 
-export const revalidate = 3600; // ISR: cache for 1 hour
+export const revalidate = 600; // ISR: cache for 10 minutes (aligned with homepage)
 
 export default async function BlogsPage({ searchParams }) {
   const queryParams = await searchParams;

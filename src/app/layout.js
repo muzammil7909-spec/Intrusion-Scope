@@ -14,7 +14,7 @@ const manrope = Manrope({
 });
 
 export const metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || 'https://intrusionscope.site'),
   title: {
     template: "%s | IntrusionScope",
     default: "IntrusionScope — Real-time Security Intelligence for Modern SecOps",

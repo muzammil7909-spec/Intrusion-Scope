@@ -113,7 +113,7 @@ const MarkdownComponents = {
         </div>
         <Image
           src={src}
-          alt={alt || "IntrusionScope Intelligence Asset"}
+          alt={alt || `${post.blogTitle} — IntrusionScope Asset`}
           fill
           className="object-cover transition-transform duration-700 group-hover:scale-[1.02]"
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 66vw, 50vw"
@@ -143,15 +143,27 @@ export default function PostClient({ post, relatedPosts = [] }) {
       {/* Navigation */}
       <nav className="fixed top-0 w-full z-50 border-b border-white/[0.04] bg-background/60 backdrop-blur-2xl">
         <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
-          <Link href="/blogs" className="flex items-center gap-3 group">
-            <motion.div
-              whileHover={{ x: -4 }}
-              className="size-9 rounded-xl bg-surface-low border border-white/[0.05] flex items-center justify-center group-hover:bg-primary/10 group-hover:border-primary/20 transition-all"
-            >
-              <ArrowLeft className="size-4 text-muted-foreground group-hover:text-primary transition-colors" />
-            </motion.div>
-            <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground group-hover:text-foreground transition-colors">BACK TO ARCHIVE</span>
-          </Link>
+          <div className="flex items-center gap-8">
+            <Link href="/blogs" className="flex items-center gap-3 group">
+              <motion.div
+                whileHover={{ x: -4 }}
+                className="size-9 rounded-xl bg-surface-low border border-white/[0.05] flex items-center justify-center group-hover:bg-primary/10 group-hover:border-primary/20 transition-all"
+              >
+                <ArrowLeft className="size-4 text-muted-foreground group-hover:text-primary transition-colors" />
+              </motion.div>
+              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground group-hover:text-foreground transition-colors">BACK TO ARCHIVE</span>
+            </Link>
+
+            {/* Visual Breadcrumbs */}
+            <div className="hidden md:flex items-center gap-3 text-[10px] font-black uppercase tracking-[0.3em] text-muted-foreground/40">
+              <span className="w-4 h-[1px] bg-white/10"></span>
+              <Link href="/" className="hover:text-primary transition-colors">HOME</Link>
+              <span>/</span>
+              <Link href="/blogs" className="hover:text-primary transition-colors">INTELLIGENCE</Link>
+              <span>/</span>
+              <span className="text-muted-foreground/20 truncate max-w-[200px]">{post.blogTitle}</span>
+            </div>
+          </div>
         </div>
       </nav>
 
@@ -178,7 +190,9 @@ export default function PostClient({ post, relatedPosts = [] }) {
               className="flex items-center gap-2 text-muted-foreground/60 text-[9px] font-black uppercase tracking-[0.2em]"
             >
               <Calendar className="size-3.5 text-primary/40" />
-              {post.dateDisclosed ? new Date(post.dateDisclosed).toLocaleDateString() : 'ACTIVE SITUATIONAL'}
+              <time dateTime={new Date(post.dateDisclosed || post.createdAt).toISOString()}>
+                {post.dateDisclosed ? new Date(post.dateDisclosed).toLocaleDateString() : 'ACTIVE SITUATIONAL'}
+              </time>
             </motion.div>
 
             <motion.div
@@ -314,7 +328,9 @@ export default function PostClient({ post, relatedPosts = [] }) {
             </div>
             <div className="space-y-3">
               <p className="text-sm font-black text-white leading-tight uppercase">
-                Critical patching mandated by {post.remediationDeadline ? new Date(post.remediationDeadline).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : "IMMEDIATE EFFECT"}.
+                Critical patching mandated by <time dateTime={new Date(post.remediationDeadline || post.createdAt).toISOString()}>
+                  {post.remediationDeadline ? new Date(post.remediationDeadline).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : "IMMEDIATE EFFECT"}
+                </time>.
               </p>
               <div className="h-1.5 w-full bg-red-500/10 rounded-full overflow-hidden mt-4">
                 <motion.div
