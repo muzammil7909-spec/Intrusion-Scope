@@ -15,7 +15,7 @@ export async function generateStaticParams() {
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://intrusionscope.site').replace(/\/$/, '');
+  const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://www.intrusionscope.site').replace(/\/$/, '');
   await dbConnect();
   const post = await Post.findOne({ slug }).lean();
   if (!post) return {};
@@ -59,7 +59,7 @@ export async function generateMetadata({ params }) {
 
 export default async function BlogPostPage({ params }) {
   const { slug } = await params;
-  const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://intrusionscope.site').replace(/\/$/, '');
+  const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://www.intrusionscope.site').replace(/\/$/, '');
   await dbConnect();
   const post = await Post.findOne({ slug }).lean();
   if (!post) notFound();

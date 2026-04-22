@@ -1,5 +1,5 @@
 export default function robots() {
-  const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://intrusionscope.site').replace(/\/$/, '');
+  const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://www.intrusionscope.site').replace(/\/$/, '');
 
   return {
     rules: [

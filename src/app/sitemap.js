@@ -5,7 +5,7 @@ import Post from '@/models/Post';
 export const revalidate = 21600;
 
 export default async function sitemap() {
-  const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://intrusionscope.site').replace(/\/$/, '');
+  const baseUrl = (process.env.NEXT_PUBLIC_BASE_URL || 'https://www.intrusionscope.site').replace(/\/$/, '');
 
   await dbConnect();
   // Fetch ALL published posts — sitemap.js in Next.js handles large arrays well
