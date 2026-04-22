@@ -9,6 +9,7 @@ import dbConnect from "@/lib/mongodb/db";
 import Post from "@/models/Post";
 import { revalidatePath, unstable_cache, revalidateTag } from "next/cache";
 import { auth } from "@/lib/auth";
+import { submitToIndexNow } from "@/lib/indexnow";
 
 // Helper to check authentication
 async function checkAuth() {
@@ -65,6 +66,12 @@ export async function createPost(formData) {
     revalidateTag("posts");
     revalidatePath("/dashboard");
     revalidatePath("/blogs");
+
+    // Submit to IndexNow if published
+    if (post.published) {
+      submitToIndexNow([`/blogs/${post.slug}`]);
+    }
+
     return { success: true, id: post._id.toString() };
   } catch (error) {
     console.error("Create Post Error:", error);
@@ -118,6 +125,12 @@ export async function updatePost(id, formData) {
     revalidateTag("posts");
     revalidatePath("/dashboard");
     revalidatePath(`/blogs/${postData.slug}`);
+
+    // Submit to IndexNow if published
+    if (postData.published) {
+      submitToIndexNow([`/blogs/${postData.slug}`]);
+    }
+
     return { success: true };
   } catch (error) {
     console.error("Update Post Error:", error);
@@ -279,6 +292,12 @@ export async function togglePublishStatus(id) {
     revalidatePath("/dashboard");
     revalidatePath("/");
     revalidatePath(`/blogs/${post.slug}`);
+
+    // Submit to IndexNow if toggled to published
+    if (post.published) {
+      submitToIndexNow([`/blogs/${post.slug}`]);
+    }
+
     return { success: true, published: post.published };
   } catch (error) {
     console.error("Toggle Publish Error:", error);
