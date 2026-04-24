@@ -1,4 +1,4 @@
-import { getPosts } from "@/actions/blogActions";
+import { getPostsUncached } from "@/actions/blogActions";
 import { Button } from "@/components/ui/button";
 import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from "@/components/ui/table";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -29,7 +29,7 @@ export default async function DashboardPage({ searchParams }) {
   const search = queryParams.search || "";
   const limit = 10;
 
-  const { posts, pagination } = await getPosts({ page, limit, search });
+  const { posts, pagination } = await getPostsUncached({ page, limit, search });
 
   const totalPosts = pagination.totalCount;
   const criticalAlerts = posts.filter(p => 

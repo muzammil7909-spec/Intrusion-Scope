@@ -216,6 +216,8 @@ const getPostsInternal = async (options = {}) => {
   }
 };
 
+export const getPostsUncached = getPostsInternal;
+
 
 export async function getPosts(options = {}) {
   const cacheKey = JSON.stringify(options);
@@ -321,6 +323,8 @@ const getPostInternal = async (idOrSlug) => {
     return null;
   }
 };
+
+export const getPostUncached = getPostInternal;
 
 export async function getPost(idOrSlug) {
   return unstable_cache(

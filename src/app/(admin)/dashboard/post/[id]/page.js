@@ -1,4 +1,4 @@
-import { getPost, createPost, updatePost } from "@/actions/blogActions";
+import { getPostUncached, createPost, updatePost } from "@/actions/blogActions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -35,7 +35,7 @@ export default async function PostEditorPage({ params }) {
 
   let post = null;
   if (id !== "new") {
-    post = await getPost(id);
+    post = await getPostUncached(id);
     if (!post) redirect("/dashboard");
   }
 
